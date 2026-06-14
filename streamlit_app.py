@@ -12,7 +12,7 @@ from pathlib import PurePosixPath
 
 import streamlit as st
 from pypdf import PdfReader, PdfWriter
-from pypdf.errors import PdfReadError
+from pypdf.errors import DependencyError, PdfReadError
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -79,8 +79,15 @@ def remove_pdf_password(file_bytes: bytes, password: str) -> bytes:
             raise PDFDecryptionError("Incorrect password.")
 
     writer = PdfWriter()
-    for page in reader.pages:
-        writer.add_page(page)
+    try:
+        for page in reader.pages:
+            writer.add_page(page)
+    except DependencyError as exc:
+        logger.debug("Missing crypto backend: %s", exc)
+        raise PDFDecryptionError(
+            "This PDF requires AES decryption support. Install "
+            "cryptography>=3.1 and restart the app."
+        ) from exc
 
     out_stream = BytesIO()
     writer.write(out_stream)

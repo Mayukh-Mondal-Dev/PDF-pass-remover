@@ -30,3 +30,4 @@ A simple [Streamlit](https://streamlit.io/) app that removes passwords from PDF 
 | ---------- | --------------- |
 | streamlit  | 1.0             |
 | pypdf      | 3.0             |
+| cryptography | 3.1           |
